@@ -3,7 +3,6 @@ const fileConfig = require('./config');
 const chalk = require('chalk');
 const execSync = require('child_process').execSync;
 const print = console.log;
-const participant = require('./participant');
 const log = {
   info   : (msg) => {
     print(chalk.bgBlue.black('INFO'), chalk.blue(msg));
@@ -20,10 +19,9 @@ const log = {
 };
 
 class AutoRW {
-  constructor (fileConfig, participant = []) {
+  constructor (fileConfig, data = []) {
     this.fileConfig = fileConfig;
-    this.participant = participant;
-    this.title = `# 本周完成情况（${this.fileConfig.date}）\n`;
+    this.data = data;
   }
   readFile(file) {
     const promise = new Promise((resolve, reject) => {
@@ -51,34 +49,47 @@ class AutoRW {
   }
 
   autoExec() {
+    this.readFile(this.fileConfig.month).then((res)=> {
+      const str = res.toString();
+      const targetArr = str.split('###');
+      let last = targetArr[targetArr.length - 1];
+      const reg = /(\[.\])/g;
+      let count = 0;
+      last = last.replace(reg, function () {
+        let str = '';
+        if(count < data.length && data[count] !== 0) {
+          str = '[X]'      
+        } else {
+          str = '[ ]'
+        }
+        count ++;
+        return str
+      });
+      targetArr[targetArr.length - 1] = last;
+      const result = targetArr.join('###');
+      return result;
+    }).then((result) => {
+      return this.writeFile(this.fileConfig.month, result);
+    }).then(() => {
+      const isAll = this.data.findIndex(ele => ele === 0) === -1 && this.data.length === +this.fileConfig.targetNum;
+      if(isAll) {
+        return this.readFile(this.fileConfig.review)
+      }else {
+        throw new Error('结束')
+      }
+    }).then((target) => {
+      let resTar = target.toString();
+      resTar += `\n- [X] ${this.getTime()}`;
+      return this.writeFile(this.fileConfig.review, resTar)
+    }, (err) => {
+      console.log('今日任务未全部完成');
+      this.pushCreateTarget();
 
-    this.writeCurrent();
-    this.writeHistoryReview();
-
-    setTimeout(() => {
-      this.pushOrigin();
-    }, 2000);
-  }
-
-  writeCurrent() {
-    let currentStr = '';
-    this.participant.forEach(ele => {
-      const str = `- ${ele.value === 1 ? '[X]' : '[ ]'} ${ele.name} \n`;
-      currentStr += str;
-    })
-    this.writeFile(this.fileConfig.current, this.title + currentStr).then((res) => {
-      console.log('current 写入成功');
-    })
-  }
-
-  writeHistoryReview() {
-    this.participant.forEach(ele => {
-      if(ele.value === 1) {
-        const fileName = `./history/${ele.name}/review.md`;
-        this.readFile(fileName).then(res => {
-          const result = res + `\n- [X] ${this.fileConfig.date}`
-          this.writeFile(fileName, result).then(() => console.log('review 写入完成'))
-        })
+      return false;
+    }).then((res) => {
+      if(res !== false) {
+        this.unifyOrigin();
+        this.pushOrigin();
       }
     })
   }
@@ -93,8 +104,8 @@ class AutoRW {
   pushOrigin() {
     execSync(`git checkout master`);
     execSync('git add .');
-    execSync(`git commit -m "feat(module: condition) ${this.fileConfig.date}"`);
-    execSync(`git push origin master`);
+    execSync(`git commit -m "feat:${this.getTime()} done"`);
+    execSync(`git push hmx master`);
     log.success('Please, Keep learning and keep progressing');
     log.success('Bye!');
   }
@@ -113,6 +124,12 @@ class AutoRW {
   }
 
 }
-
-const autoRw = new AutoRW(fileConfig, participant);
+let isInit = true;
+// isInit = false;
+const data =  isInit ?  [1,1,1,1,1] : [0,0,0,0,0];
+const autoRw = new AutoRW(fileConfig, data);
 autoRw.autoExec();
+// if(isInit) {
+  
+// } else {
+// }

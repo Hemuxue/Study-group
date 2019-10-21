@@ -1,7 +1,7 @@
 {
-  "name": "study-group",
+  "name": "target_and_mission",
   "version": "1.0.0",
-  "description": "",
+  "description": "## 今日任务 ### 8月29日目标",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,13 +10,5 @@
   "license": "ISC",
   "devDependencies": {
     "chalk": "^2.4.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Hemuxue/Study-group.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Hemuxue/Study-group/issues"
-  },
-  "homepage": "https://github.com/Hemuxue/Study-group#readme"
+  }
 }
