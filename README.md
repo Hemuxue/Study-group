@@ -23,6 +23,18 @@
 
 在 current.md 中记录本周完成情况，记录格式同上，后期会采用自动化的方法实现记录
 
+## 开发流程
+
+1. 添加 remote git remote origin https://github.com/Hemuxue/Study-group.git
+2. 如果只是修改自己文件夹下的文章连接，或者文章可以直接在master 开发，然后使用 git push origin master.
+3. 如果其他人员修改了 自动化代码或者readme，则需要用以下的步骤进行开发。
+   1. 在GitHub 中建立 issue，表明需要完成的任务。 https://github.com/Hemuxue/Study-group/issues  。 参考之前的 issue 建立方式，需要设计分配人。
+   2. 在代码中，使用 git pull origin master 拉下最新代码。
+   3. 使用 git checkout -b  feat-21-XXX     （其中21 为对应的issue 编号）。切换到开发分支。
+   4. 开发完毕。 git add . git commit -m 'XXX'   commit 信息请按照如下格式填写。例如： git commit -m 'feat(module: readme): change readme'
+   5. git push origin XXX  (XXX 为你当前的开发的分支名)
+   6. 到GitHub仓库内建立 pr, pr 具体建立方式，询问 @hechangju 或者百度。
+   7. 分配的审核人员进行审核，审核通过后，合并进入master。最后删除当前分支。（不懂的话，操作前询问）
 ## 如何编写提交信息
 
 * 参与人员维护自己的文章页面。 feat(module: XXXX): XXX
