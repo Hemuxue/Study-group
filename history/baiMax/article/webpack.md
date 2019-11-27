@@ -54,5 +54,58 @@ webpack.common.js 中使用 webpack.DllReferencePlugin 和 AddAssetWebpackPlugin
 10、开发环境内存编译（webpack-dev-server）
 11、开发环境无用插件剔除
 
+5-13：多页面应用
+添加入口文件，配合 HtmlWebpackPlugin 插件 使用。
+https://www.webpackjs.com/plugins/html-webpack-plugin/
+插件主要参数：
+new HtmlWebpackPlugin({
+  template: './src/index.html',
+  filename: 'index.html',
+  // 文件打包产生的chunk文件
+  chunks: ['vendors', 'index']
+  }),
+6-1 6-2
+loader 编写
+所谓 loader 只是一个导出为函数的 JavaScript 模块。loader runner 会调用这个函数，然后把上一个 loader 产生的结果或者资源文件(resource file)传入进去。函数的 this 上下文将由 webpack 填充，并且 loader runner 具有一些有用方法，可以使 loader 改变为异步调用方式，或者获取 query 参数。
 
+自己写loader的目的：对源代码对包装处理
+1、代码异常捕获，不用嵌入业务代码
+2、网站国际化配置：通过全局变量，改变特定字符代码包裹的内容{{title}}  一个全局变量为中文=> 替换成中文标题
+loader-utils 使用
+https://www.webpackjs.com/api/loaders/
 
+6-3
+plugin 编写
+插件的编写是去编写一个类
+https://www.webpackjs.com/api/plugins/
+
+开启node debug 模式
+package.json 中 scripts 配置 显示执行node文件 传递 node 参数
+"debug": "node --inspect --inspect-brk node_modules/webpack/bin/webpack.js",
+--inspect 开启node调试工具 --inspect-brk 执行时候第一行打一个断点
+
+class CopyrightWebpackPlugin {
+  constructor(options) {
+    console.log(options)
+  }
+  apply(compiler) {
+    对应的钩子函数 compile 同步
+    compiler.hooks.compile.tap('CopyrightWebpackPlugin', (compilation) => {
+      console.log(compilation.assets)
+    })
+    // 对应的钩子函数 emit 异步
+    compiler.hooks.emit.tapAsync('CopyrightWebpackPlugin', (compilation, cb) => {
+      debugger  // 查看 compilation 的参数 
+      compilation.assets['asyncCopyRight.js'] = {
+        source: function() {
+          return "bai"
+        },
+        size: function() {
+          return 8
+        }
+      }
+      cb()
+    })
+  }
+}
+module.exports = CopyrightWebpackPlugin;
