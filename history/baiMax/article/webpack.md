@@ -109,3 +109,5 @@ class CopyrightWebpackPlugin {
   }
 }
 module.exports = CopyrightWebpackPlugin;
+
+webpack源码配置：实际是对模块对分析配置
